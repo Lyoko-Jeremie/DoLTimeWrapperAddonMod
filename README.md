@@ -3,6 +3,67 @@
 
 ---
 
+this mod provide addon mode `DoLTimeWrapperAddon`: `DoLTimeWrapperAddon` and a js API .
+
+detail to see follow .
+
+## **WRANGLING: this mod maybe case infinity loop in runtime , so please use it carefully.**
+
+---
+
+use the params:
+
+```json lines
+{
+  "addonPlugin": [
+    {
+      "modName": "DoLTimeWrapperAddon",
+      "addonName": "DoLTimeWrapperAddon",
+      "modVersion": "^1.0.0",
+      "params": {
+        "hooks": [
+          {
+            "level": "fieldOrFunctionName",
+            "key": "pass",
+            "pos": "after",
+            "type": "call",
+            "js": "args.append([''])"
+          },
+          {
+            "level": "fieldOrFunctionName",
+            "key": "pass",
+            "pos": "before",
+            "type": "call",
+            "js": "V.xxx=aaa;"
+          },
+          {
+            "level": "LocalFunction",
+            "key": "dayPassed",
+            "pos": "before",
+            "type": "call",
+            "wiki": "<<xxx>>"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+the `params.hooks` is array of :
+```typescript
+export interface DoLTimeWrapperParams {
+    level: 'LocalFunction' | 'TimeObject';
+    key: string;
+    pos: 'before' | 'after';
+    type: 'call' | 'get' | 'set';
+    js?: string;
+    wiki?: string;
+}
+```
+
+---
+
 use the API:
 
 ```typescript
