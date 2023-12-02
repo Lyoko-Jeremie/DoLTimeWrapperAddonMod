@@ -12,5 +12,10 @@ declare global {
         addonDoLTimeWrapperAddon: DoLTimeWrapperAddon;
 
         Time: any;
+        SugarCube: {
+            Wikifier: {
+                wikifyEval: (text: string, passageObj?: any, passageTitle?: string) => void;
+            }
+        }
     }
 }

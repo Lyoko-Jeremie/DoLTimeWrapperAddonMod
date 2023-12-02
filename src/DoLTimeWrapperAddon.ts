@@ -1,20 +1,27 @@
 import JSZip from "jszip";
+import type {AddonPluginHookPointEx} from "../../../dist-BeforeSC2/AddonPlugin";
 import type {LogWrapper} from "../../../dist-BeforeSC2/ModLoadController";
 import type {SC2DataManager} from "../../../dist-BeforeSC2/SC2DataManager";
 import type {ModUtils} from "../../../dist-BeforeSC2/Utils";
-import type {ModBootJson, ModInfo} from "../../../dist-BeforeSC2/ModLoader";
+import type {ModBootJson, ModBootJsonAddonPlugin, ModInfo} from "../../../dist-BeforeSC2/ModLoader";
 import {isArray, isNil, isString} from 'lodash';
 import {OldTimeFunctionRefType, OldTimeFunctionRefTypeNameList, TimeHookManager} from "./OldTimeFunctionHook";
 import {TimeHookType, TimeProxyManager} from "./TimeProxyManager";
+import type {ModZipReader} from "../../../dist-BeforeSC2/ModZipReader";
+import {DoLTimeWrapperAddonPlugin} from "./DoLTimeWrapperAddonPlugin";
+
 
 export class DoLTimeWrapperAddon {
     private logger: LogWrapper;
+
+    private timeWrapperAddonPlugin: DoLTimeWrapperAddonPlugin;
 
     constructor(
         public gSC2DataManager: SC2DataManager,
         public gModUtils: ModUtils,
     ) {
         this.logger = gModUtils.getLogger();
+        this.timeWrapperAddonPlugin = new DoLTimeWrapperAddonPlugin(gSC2DataManager, gModUtils, this);
         // catch the `Time` object and "Proxy" it
         this._timeProxyManager = new TimeProxyManager(
             this.gModUtils.thisWin,
@@ -97,6 +104,5 @@ export class DoLTimeWrapperAddon {
 
         return code;
     }
-
 
 }

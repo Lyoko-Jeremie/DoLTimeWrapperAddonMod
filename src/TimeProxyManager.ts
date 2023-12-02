@@ -1,6 +1,7 @@
 import type {SC2DataManager} from "../../../dist-BeforeSC2/SC2DataManager";
 import type {ModUtils} from "../../../dist-BeforeSC2/Utils";
 import type {LogWrapper} from "../../../dist-BeforeSC2/ModLoadController";
+import {OldTimeFunctionRefTypeNameList} from "./OldTimeFunctionHook";
 
 export class TimeProxyHandler implements ProxyHandler<any> {
     constructor(
@@ -9,9 +10,9 @@ export class TimeProxyHandler implements ProxyHandler<any> {
     }
 
     get(target: any, p: string | symbol, receiver: any): any {
-        this.parent.runCallback(p.toString(), 'before', 'get', []);
+        this.parent.runCallback(p.toString(), 'before', 'get', [target, p, undefined]);
         let value = Reflect.get(target, p, receiver);
-        this.parent.runCallback(p.toString(), 'after', 'get', [value]);
+        this.parent.runCallback(p.toString(), 'after', 'get', [target, p, value]);
         if (typeof value == 'function') {
             return (...argArray: any[]) => {
                 this.parent.runCallback(value.name, 'before', 'call', argArray);
@@ -25,9 +26,9 @@ export class TimeProxyHandler implements ProxyHandler<any> {
     }
 
     set(target: any, p: string | symbol, newValue: any, receiver: any): boolean {
-        this.parent.runCallback(p.toString(), 'before', 'set', [newValue]);
+        this.parent.runCallback(p.toString(), 'before', 'set', [target, p, newValue]);
         const ok = Reflect.set(target, p, newValue, receiver);
-        this.parent.runCallback(p.toString(), 'after', 'set', [newValue]);
+        this.parent.runCallback(p.toString(), 'after', 'set', [target, p, newValue]);
         return ok;
     }
 
@@ -61,18 +62,24 @@ export class HookManagerCore {
     callableHook: Map<string, TimeHookType[]> = new Map<string, TimeHookType[]>();
 
     addCallableHook(key: string, hook: TimeHookType) {
-        const n = this.callableHook.get(key);
-        if (!n) {
-            this.callableHook.set(key, [hook]);
-            console.log(`[DoLTimeWrapperAddon] [${this.mode}] addCallableHook`, [key, hook]);
-            this.logger.log(`[DoLTimeWrapperAddon] [${this.mode}] addCallableHook key[${key}] pos[${hook.pos}] type[${hook.type}]`);
-            return;
+        if (this.mode === 'TimeHookManager' && !OldTimeFunctionRefTypeNameList.includes(key as any)) {
+            console.warn(`[DoLTimeWrapperAddon] [${this.mode}] addCallableHook key[${key}] not in OldTimeFunctionRefTypeNameList`);
+            this.logger.warn(`[DoLTimeWrapperAddon] [${this.mode}] addCallableHook key[${key}] not in OldTimeFunctionRefTypeNameList`);
         }
-        n.push(hook);
+        if (!this.callableHook.has(key)) {
+            this.callableHook.set(key, []);
+        }
+        this.callableHook.get(key)!.push(hook);
+        console.log(`[DoLTimeWrapperAddon] [${this.mode}] addCallableHook`, [key, hook]);
+        this.logger.log(`[DoLTimeWrapperAddon] [${this.mode}] addCallableHook key[${key}] pos[${hook.pos}] type[${hook.type}]`);
     }
 
     runCallback(key: string, pos: 'before' | 'after', type: 'call' | 'get' | 'set', args: any[]) {
-        console.log(`[DoLTimeWrapperAddon] [${this.mode}] runCallback`, [key, pos, type, args]);
+        // when 'call' , the args[0] is the origin function's params list ('before') OR is the function's return value ('after')
+        // when 'get' , the args[0] is the origin object, the args[1] is the origin key, the args[2] is the origin value ('after') OR undefined ('before')
+        // when 'set' , the args[0] is the origin object, the args[1] is the origin key, the args[2] is the new value
+
+        // console.log(`[DoLTimeWrapperAddon] [${this.mode}] runCallback`, [key, pos, type, args]);
         const hooks = this.callableHook.get(key);
         if (!hooks) {
             return;
