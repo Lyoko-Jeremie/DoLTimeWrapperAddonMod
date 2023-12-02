@@ -7,7 +7,7 @@ this mod provide addon mode `DoLTimeWrapperAddon`: `DoLTimeWrapperAddon` and a j
 
 detail to see follow .
 
-## **WRANGLING: this mod maybe case infinity loop in runtime , so please use it carefully.**
+### **⚠ WRANGLING: this mod maybe case infinity loop in runtime , so please use it carefully.**
 
 ---
 
@@ -114,4 +114,35 @@ export interface TimeHookType {
     //      4) same as 1.2
     hook: (...args: any[]) => void;
 }
+```
+
+---
+
+the `fieldOrFunctionName` can be any field of the `Time` object in game's `time.js`.
+
+the `localFunctionName` is one of:
+```typescript
+export const OldTimeFunctionRefTypeNameList: (keyof OldTimeFunctionRefType)[] = [
+    'yearPassed',
+    'weekPassed',
+    'dayPassed',
+    'hourPassed',
+    'minutePassed',
+    'noonCheck',
+    'dawnCheck',
+    'dailyNPCEffects',
+    'dailyPlayerEffects',
+    'dailyTransformationEffects',
+    'dailyLiquidEffects',
+    'yearlyEventChecks',
+    'moonState',
+    'dailySchoolEffects',
+    'dailyMasochismSadismEffects',
+    'dailyFarmEvents',
+    'temperatureHour',
+    'passWater',
+    'passArousalWetness',
+    'getArousal',
+    'earSlimeDaily',
+] as const;
 ```
