@@ -57,6 +57,7 @@ export interface DoLTimeWrapperParams {
     key: string;
     pos: 'before' | 'after';
     type: 'call' | 'get' | 'set';
+    // the js code will called by `new Function('args', p.js)(args)` , the `args` will be `TimeHookType.hook(...args)`, see follow
     js?: string;
     wiki?: string;
 }
@@ -98,19 +99,19 @@ export interface TimeHookType {
     type: 'call' | 'get' | 'set';   // is a function call OR get a field OR set a field
     // the callback function will be called when hook trigger
     //  1. if is a 'call' type:
-    //      1.1 if 'before', the `args` will be the original function's arguments
-    //      1.2 if 'after', the `args` will be the original function's return value
+    //      1.1 if 'before', the args[0] is the origin function's params list
+    //      1.2 if 'after', the args[0] is the function's return value
     //  2. if is a 'get' type:
-    //      2.1 if 'before', the `args` will be []
-    //      2.2 if 'after', the `args` will be the value
+    //      2.1 if 'before', the args[0] is the origin object, the args[1] is the origin key, the args[2] is undefined
+    //      2.2 if 'after', the args[0] is the origin object, the args[1] is the origin key, the args[2] is the origin value
     //  3. if is a 'set' type:
-    //      3.1 if 'before', the `args` will be the new value
-    //      3.2 if 'after', the `args` will be the new value
+    //      3.1 if 'before', the args[0] is the origin object, the args[1] is the origin key, the args[2] is the new value
+    //      3.2 if 'after', the args[0] is the origin object, the args[1] is the origin key, the args[2] is the new value
     //  4. if a function 'get' from the `window.Time`, it will be call as follow order:
-    //      1) trigger 'get' 'before' functionName with []
-    //      2) trigger 'get' 'after' functionName with the original function ref
-    //      2) trigger 'call' 'before' with the original function's arguments
-    //      2) trigger 'call' 'after' with the original function's return value
+    //      1) same as 2.1
+    //      2) same as 2.2
+    //      3) same as 1.1
+    //      4) same as 1.2
     hook: (...args: any[]) => void;
 }
 ```
