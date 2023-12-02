@@ -6,7 +6,7 @@ import type {ModUtils} from "../../../dist-BeforeSC2/Utils";
 import type {ModBootJson, ModBootJsonAddonPlugin, ModInfo} from "../../../dist-BeforeSC2/ModLoader";
 import {isArray, isNil, isString} from 'lodash';
 import {OldTimeFunctionRefType, OldTimeFunctionRefTypeNameList, TimeHookManager} from "./OldTimeFunctionHook";
-import {TimeHookType, TimeProxyManager} from "./TimeProxyManager";
+import {InfinityLoopChecker, TimeHookType, TimeProxyManager} from "./TimeProxyManager";
 import type {ModZipReader} from "../../../dist-BeforeSC2/ModZipReader";
 import {DoLTimeWrapperAddonPlugin} from "./DoLTimeWrapperAddonPlugin";
 
@@ -15,6 +15,7 @@ export class DoLTimeWrapperAddon {
     private logger: LogWrapper;
 
     private timeWrapperAddonPlugin: DoLTimeWrapperAddonPlugin;
+    public infinityLoopChecker: InfinityLoopChecker;
 
     constructor(
         public gSC2DataManager: SC2DataManager,
@@ -22,17 +23,20 @@ export class DoLTimeWrapperAddon {
     ) {
         this.logger = gModUtils.getLogger();
         this.timeWrapperAddonPlugin = new DoLTimeWrapperAddonPlugin(gSC2DataManager, gModUtils, this);
+        this.infinityLoopChecker = new InfinityLoopChecker(this.logger);
         // catch the `Time` object and "Proxy" it
         this._timeProxyManager = new TimeProxyManager(
             this.gModUtils.thisWin,
             this.gModUtils,
             this.gSC2DataManager,
+            this.infinityLoopChecker,
         );
         // catch all the "local" function in `time.js` file and "hook" it
         this._timeHookManager = new TimeHookManager(
             this.gModUtils.thisWin,
             this.gModUtils,
             this.gSC2DataManager,
+            this.infinityLoopChecker,
         );
     }
 

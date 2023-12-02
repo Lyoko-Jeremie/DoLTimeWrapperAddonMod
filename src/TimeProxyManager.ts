@@ -2,6 +2,7 @@ import type {SC2DataManager} from "../../../dist-BeforeSC2/SC2DataManager";
 import type {ModUtils} from "../../../dist-BeforeSC2/Utils";
 import type {LogWrapper} from "../../../dist-BeforeSC2/ModLoadController";
 import {OldTimeFunctionRefTypeNameList} from "./OldTimeFunctionHook";
+import {clone} from 'lodash';
 
 export class TimeProxyHandler implements ProxyHandler<any> {
     constructor(
@@ -48,6 +49,54 @@ export interface TimeHookType {
     hook: (...args: any[]) => void;
 }
 
+export interface InfinityLoopStackType {
+    key: string;
+    pos: 'before' | 'after';
+    type: 'call' | 'get' | 'set';
+    args: any[];
+}
+
+export class InfinityLoopChecker {
+    constructor(
+        protected logger: LogWrapper,
+    ) {
+    }
+
+    stack: InfinityLoopStackType[] = [];
+    maxStackLengthWarn = 10;
+    maxStackLengthError = 30;
+
+    push(p: InfinityLoopStackType) {
+        this.stack.push(p);
+        // console.log(`[DoLTimeWrapperAddon] InfinityLoopChecker stack push`, clone(this.stack));
+        if (this.stack.length > this.maxStackLengthError) {
+            console.error(`[DoLTimeWrapperAddon] InfinityLoopChecker stack overflow`, this.stack);
+            throw new Error(`[DoLTimeWrapperAddon] InfinityLoopChecker stack overflow`);
+            return false;
+        } else if (this.stack.length > this.maxStackLengthWarn) {
+            console.warn(`[DoLTimeWrapperAddon] InfinityLoopChecker stack overflow`, this.stack);
+            return true;
+        }
+        return true;
+    }
+
+    pop(p: InfinityLoopStackType) {
+        // check stack balance
+        if (
+            this.stack.length == 0
+            || this.stack[this.stack.length - 1].key !== p.key
+            || this.stack[this.stack.length - 1].pos !== p.pos
+            || this.stack[this.stack.length - 1].type !== p.type
+        ) {
+            console.error(`[DoLTimeWrapperAddon] InfinityLoopChecker stack balance error`, this.stack, p);
+            throw new Error(`[DoLTimeWrapperAddon] InfinityLoopChecker stack balance error`);
+            return false;
+        }
+        this.stack.pop();
+        return true;
+    }
+}
+
 export class HookManagerCore {
     protected logger: LogWrapper;
 
@@ -55,6 +104,7 @@ export class HookManagerCore {
         public thisWin: Window,
         public gModUtils: ModUtils,
         public mode: string,
+        public infinityLoopChecker: InfinityLoopChecker,
     ) {
         this.logger = this.gModUtils.getLogger();
     }
@@ -80,8 +130,20 @@ export class HookManagerCore {
         // when 'set' , the args[0] is the origin object, the args[1] is the origin key, the args[2] is the new value
 
         // console.log(`[DoLTimeWrapperAddon] [${this.mode}] runCallback`, [key, pos, type, args]);
+        this.infinityLoopChecker.push({
+            key,
+            pos,
+            type,
+            args,
+        });
         const hooks = this.callableHook.get(key);
         if (!hooks) {
+            this.infinityLoopChecker.pop({
+                key,
+                pos,
+                type,
+                args,
+            });
             return;
         }
         for (const hook of hooks) {
@@ -94,6 +156,12 @@ export class HookManagerCore {
                 }
             }
         }
+        this.infinityLoopChecker.pop({
+            key,
+            pos,
+            type,
+            args,
+        });
     }
 
 }
@@ -103,11 +171,13 @@ export class TimeProxyManager extends HookManagerCore {
         public thisWin: Window,
         public gModUtils: ModUtils,
         public gSC2DataManager: SC2DataManager,
+        public infinityLoopChecker: InfinityLoopChecker,
     ) {
         super(
             thisWin,
             gModUtils,
             'TimeProxyManager',
+            infinityLoopChecker
         );
     }
 

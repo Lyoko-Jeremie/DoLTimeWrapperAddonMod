@@ -1,4 +1,4 @@
-import {HookManagerCore, TimeProxyHandler, TimeProxyManager} from "./TimeProxyManager";
+import {HookManagerCore, InfinityLoopChecker, TimeProxyHandler, TimeProxyManager} from "./TimeProxyManager";
 import type {SC2DataManager} from "../../../dist-BeforeSC2/SC2DataManager";
 import type {ModUtils} from "../../../dist-BeforeSC2/Utils";
 
@@ -70,11 +70,13 @@ export class TimeHookManager extends HookManagerCore {
         public thisWin: Window,
         public gModUtils: ModUtils,
         public gSC2DataManager: SC2DataManager,
+        public infinityLoopChecker: InfinityLoopChecker,
     ) {
         super(
             thisWin,
             gModUtils,
             'TimeHookManager',
+            infinityLoopChecker
         );
     }
 
