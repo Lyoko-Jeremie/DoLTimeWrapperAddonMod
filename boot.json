@@ -1,0 +1,35 @@
+{
+  "name": "DoLTimeWrapperAddon",
+  "version": "1.0.0",
+  "styleFileList": [
+  ],
+  "scriptFileList_earlyload": [
+  ],
+  "scriptFileList_inject_early": [
+    "dist/DoLTimeWrapperAddon.js"
+  ],
+  "scriptFileList_preload": [
+  ],
+  "scriptFileList": [
+    "src_boot/hookTime.js"
+  ],
+  "tweeFileList": [
+  ],
+  "imgFileList": [
+  ],
+  "imgFileReplaceList": [
+  ],
+  "additionFile": [
+    "README.md"
+  ],
+  "additionBinaryFile": [
+  ],
+  "addonPlugin": [
+  ],
+  "dependenceInfo": [
+    {
+      "modName": "ModLoader",
+      "version": "^2.3.1"
+    }
+  ]
+}
