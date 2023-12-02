@@ -1,11 +1,11 @@
 import JSZip from "jszip";
-import type {LifeTimeCircleHook, LogWrapper} from "../../../dist-BeforeSC2/ModLoadController";
+import type {LogWrapper} from "../../../dist-BeforeSC2/ModLoadController";
 import type {SC2DataManager} from "../../../dist-BeforeSC2/SC2DataManager";
 import type {ModUtils} from "../../../dist-BeforeSC2/Utils";
 import type {ModBootJson, ModInfo} from "../../../dist-BeforeSC2/ModLoader";
 import {isArray, isNil, isString} from 'lodash';
 import {OldTimeFunctionRefType, OldTimeFunctionRefTypeNameList, TimeHookManager} from "./OldTimeFunctionHook";
-import {TimeProxyManager} from "./TimeProxyManager";
+import {TimeHookType, TimeProxyManager} from "./TimeProxyManager";
 
 export class DoLTimeWrapperAddon {
     private logger: LogWrapper;
@@ -15,14 +15,34 @@ export class DoLTimeWrapperAddon {
         public gModUtils: ModUtils,
     ) {
         this.logger = gModUtils.getLogger();
+        // catch the `Time` object and "Proxy" it
+        this._timeProxyManager = new TimeProxyManager(
+            this.gModUtils.thisWin,
+            this.gModUtils,
+            this.gSC2DataManager,
+        );
+        // catch all the "local" function in `time.js` file and "hook" it
+        this._timeHookManager = new TimeHookManager(
+            this.gModUtils.thisWin,
+            this.gModUtils,
+            this.gSC2DataManager,
+        );
     }
 
-    private _timeProxyManager?: TimeProxyManager;
+    addTimeHook(hook: TimeHookType) {
+        this._timeProxyManager.addCallableHook(hook.key, hook);
+    }
+
+    addFunctionHook(hook: TimeHookType) {
+        this._timeHookManager.addCallableHook(hook.key, hook);
+    }
+
+    private _timeProxyManager: TimeProxyManager;
     get timeProxyManager() {
         return this._timeProxyManager;
     }
 
-    private _timeHookManager?: TimeHookManager;
+    private _timeHookManager: TimeHookManager;
     get timeHookManager() {
         return this._timeHookManager;
     }
@@ -58,22 +78,8 @@ export class DoLTimeWrapperAddon {
             return;
         }
 
-        // catch the `Time` object and "Proxy" it
-        this._timeProxyManager = new TimeProxyManager(
-            this.gModUtils.thisWin,
-            this.gModUtils,
-            this.gSC2DataManager,
-        );
         this._timeProxyManager.init();
-
-        // catch all the "local" function in `time.js` file and "hook" it
-        this._timeHookManager = new TimeHookManager(
-            this.gModUtils.thisWin,
-            this.gModUtils,
-            this.gSC2DataManager,
-            oldTimeFunctionRef
-        );
-        this._timeHookManager.init();
+        this._timeHookManager.init(oldTimeFunctionRef);
 
         // generate the code to replace the "local" function in `time.js` file
         let code = `\n`;

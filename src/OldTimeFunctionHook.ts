@@ -64,11 +64,12 @@ export function isEmptyArray(value: any[]): value is [] {
 }
 
 export class TimeHookManager extends HookManagerCore {
+    public oldTimeFunctionRef?: OldTimeFunctionRefType;
+
     constructor(
         public thisWin: Window,
         public gModUtils: ModUtils,
         public gSC2DataManager: SC2DataManager,
-        public oldTimeFunctionRef: OldTimeFunctionRefType,
     ) {
         super(
             thisWin,
@@ -98,6 +99,11 @@ export class TimeHookManager extends HookManagerCore {
     invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: []): void;
     invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: OldTimeFunctionArgsType[K]): void;
     invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: any[]): void {
+        if (!this.oldTimeFunctionRef) {
+            console.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error oldTimeFunctionRef not init`);
+            this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error oldTimeFunctionRef not init`);
+            return;
+        }
         if (typeof this.oldTimeFunctionRef[key] === 'function') {
             const ff = this.oldTimeFunctionRef[key] as (...args: any[]) => any;
             this.runCallback(key, 'before', 'call', args);
@@ -111,6 +117,11 @@ export class TimeHookManager extends HookManagerCore {
     }
 
     createWrapperForOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K) {
+        if (!this.oldTimeFunctionRef) {
+            console.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error oldTimeFunctionRef not init`);
+            this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error oldTimeFunctionRef not init`);
+            return;
+        }
         if (typeof this.oldTimeFunctionRef[key] === 'function') {
             const ff = this.oldTimeFunctionRef[key] as (...args: OldTimeFunctionArgsType[K]) => any;
             return (...args: any[]) => {
@@ -121,7 +132,8 @@ export class TimeHookManager extends HookManagerCore {
         this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error function not exit: [${key}]`);
     }
 
-    init() {
+    init(oldTimeFunctionRef: OldTimeFunctionRefType) {
+        this.oldTimeFunctionRef = oldTimeFunctionRef;
     }
 
 }
