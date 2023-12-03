@@ -42,6 +42,11 @@ export class DoLTimeWrapperAddonPlugin implements AddonPluginHookPointEx {
         public timeWrapperAddon: DoLTimeWrapperAddon,
     ) {
         this.logger = gModUtils.getLogger();
+        this.gSC2DataManager.getAddonPluginManager().registerAddonPlugin(
+            'DoLTimeWrapperAddon',
+            'DoLTimeWrapperAddon',
+            this
+        );
     }
 
     async registerMod(addonName: string, mod: ModInfo, modZip: ModZipReader) {
