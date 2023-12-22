@@ -1,0 +1,62 @@
+{
+  "name": "TestDoLTimeWrapperAddon",
+  "version": "1.0.1",
+  "styleFileList": [
+  ],
+  "scriptFileList_earlyload": [
+  ],
+  "scriptFileList_inject_early": [
+  ],
+  "scriptFileList_preload": [
+  ],
+  "scriptFileList": [
+  ],
+  "tweeFileList": [
+  ],
+  "imgFileList": [
+  ],
+  "imgFileReplaceList": [
+  ],
+  "additionFile": [
+  ],
+  "additionBinaryFile": [
+  ],
+  "addonPlugin": [
+    {
+      "modName": "DoLTimeWrapperAddon",
+      "addonName": "DoLTimeWrapperAddon",
+      "modVersion": "^1.0.0",
+      "params": {
+        "hooks": [
+          {
+            "level": "TimeObject",
+            "key": "pass",
+            "pos": "after",
+            "type": "call",
+            "js": "console.log('[TestDoLTimeWrapperAddon] TimeObject pass after')"
+          },
+          {
+            "level": "LocalFunction",
+            "key": "dayPassed",
+            "pos": "before",
+            "type": "call",
+            "js": "console.log('[TestDoLTimeWrapperAddon] LocalFunction dayPassed before')"
+          },
+          {
+            "level": "LocalFunction",
+            "key": "dayPassed",
+            "pos": "after",
+            "type": "call",
+            "js": "console.log('[TestDoLTimeWrapperAddon] LocalFunction dayPassed after')"
+          }
+        ]
+      }
+    }
+  ],
+  "dependenceInfo": [
+    {
+      "modName": "DoLTimeWrapperAddon",
+      "version": "^1.0.2"
+    }
+  ]
+}

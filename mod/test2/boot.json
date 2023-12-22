@@ -1,0 +1,42 @@
+{
+  "name": "TestDoLTimeWrapperAddon",
+  "version": "1.0.1",
+  "styleFileList": [
+  ],
+  "scriptFileList_earlyload": [
+  ],
+  "scriptFileList_inject_early": [
+  ],
+  "scriptFileList_preload": [
+    "testJsApi.js"
+  ],
+  "scriptFileList": [
+  ],
+  "tweeFileList": [
+  ],
+  "imgFileList": [
+  ],
+  "imgFileReplaceList": [
+  ],
+  "additionFile": [
+  ],
+  "additionBinaryFile": [
+  ],
+  "addonPlugin": [
+    {
+      "modName": "DoLTimeWrapperAddon",
+      "addonName": "DoLTimeWrapperAddon",
+      "modVersion": "^1.0.0",
+      "params": {
+        "hooks": [
+        ]
+      }
+    }
+  ],
+  "dependenceInfo": [
+    {
+      "modName": "DoLTimeWrapperAddon",
+      "version": "^1.0.2"
+    }
+  ]
+}
