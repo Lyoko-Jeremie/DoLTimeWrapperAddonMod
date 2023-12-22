@@ -23,14 +23,14 @@ use the params:
       "params": {
         "hooks": [
           {
-            "level": "fieldOrFunctionName",
+            "level": "TimeObject",
             "key": "pass",
             "pos": "after",
             "type": "call",
             "js": "args.append([''])"
           },
           {
-            "level": "fieldOrFunctionName",
+            "level": "TimeObject",
             "key": "pass",
             "pos": "before",
             "type": "call",
