@@ -139,10 +139,10 @@ export const OldTimeFunctionRefTypeNameList: (keyof OldTimeFunctionRefType)[] = 
     'dailySchoolEffects',
     'dailyMasochismSadismEffects',
     'dailyFarmEvents',
-    'temperatureHour',
     'passWater',
     'passArousalWetness',
     'getArousal',
     'earSlimeDaily',
+    'getTimeString',
 ] as const;
 ```
