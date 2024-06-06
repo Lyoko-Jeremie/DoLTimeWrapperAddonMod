@@ -1,4 +1,10 @@
-import {HookManagerCore, InfinityLoopChecker, TimeProxyHandler, TimeProxyManager} from "./TimeProxyManager";
+import {
+    HookManagerCore,
+    InfinityLoopChecker,
+    TimeHookType,
+    TimeProxyHandler,
+    TimeProxyManager
+} from "./TimeProxyManager";
 import type {SC2DataManager} from "../../../dist-BeforeSC2/SC2DataManager";
 import type {ModUtils} from "../../../dist-BeforeSC2/Utils";
 
@@ -99,6 +105,19 @@ export class TimeHookManager extends HookManagerCore {
     //     }
     // }
 
+    addCallableHook(key: string, hook: TimeHookType) {
+        if (!this.oldTimeFunctionRef) {
+            console.error(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook error oldTimeFunctionRef not init`);
+            this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook error oldTimeFunctionRef not init`);
+            return;
+        }
+        if (this.mode === 'TimeHookManager' && this.oldTimeFunctionRef.hasOwnProperty(key)) {
+            console.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${key}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
+            this.logger.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${key}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
+        }
+        super.addCallableHook(key, hook);
+    }
+
     // from GPT-4 + GithubCopilotChat
     invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: []): any;
     invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: OldTimeFunctionArgsType[K]): any;
@@ -139,7 +158,7 @@ export class TimeHookManager extends HookManagerCore {
     init(oldTimeFunctionRef: OldTimeFunctionRefType) {
         this.oldTimeFunctionRef = oldTimeFunctionRef;
         for (let key of OldTimeFunctionRefTypeNameList) {
-            if (typeof oldTimeFunctionRef[key] === 'function') {
+            if (typeof this.oldTimeFunctionRef[key] === 'function') {
                 // it's ok
                 // console.log(`[DoLTimeWrapperAddon] [TimeHookManager] init function catch ok: `, [key]);
             } else {
