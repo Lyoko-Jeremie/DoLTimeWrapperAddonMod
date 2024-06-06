@@ -100,9 +100,9 @@ export class TimeHookManager extends HookManagerCore {
     // }
 
     // from GPT-4 + GithubCopilotChat
-    invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: []): void;
-    invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: OldTimeFunctionArgsType[K]): void;
-    invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: any[]): void {
+    invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: []): any;
+    invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: OldTimeFunctionArgsType[K]): any;
+    invokeOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K, args: any[]): any {
         if (!this.oldTimeFunctionRef) {
             console.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error oldTimeFunctionRef not init`);
             this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error oldTimeFunctionRef not init`);
