@@ -68,6 +68,8 @@ export class DoLTimeWrapperAddon {
             return '';
         }
 
+        // TODO this will case a error if a function now exist in OldTimeFunctionRefTypeNameList that we try to catch
+        //      and we cannot detect this, now
         let code = `window.addonDoLTimeWrapperAddon.init({`;
         for (let key of OldTimeFunctionRefTypeNameList) {
             code += `${key}: ${key},`;
