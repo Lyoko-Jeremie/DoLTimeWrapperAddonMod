@@ -19,7 +19,7 @@ export interface OldTimeFunctionRefType {
     dailySchoolEffects?: () => DocumentFragment;
     dailyMasochismSadismEffects?: () => DocumentFragment;
     dailyFarmEvents?: () => DocumentFragment;
-    // temperatureHour?: () => void;
+    temperatureHour?: () => void;
     passWater?: (passMinutes: number) => DocumentFragment;
     passArousalWetness?: (passMinutes: number) => DocumentFragment;
     getArousal?: (passMinutes: number) => number;
@@ -44,7 +44,7 @@ export const OldTimeFunctionRefTypeNameList: (keyof OldTimeFunctionRefType)[] = 
     'dailySchoolEffects',
     'dailyMasochismSadismEffects',
     'dailyFarmEvents',
-    // 'temperatureHour',
+    'temperatureHour',
     'passWater',
     'passArousalWetness',
     'getArousal',
@@ -138,6 +138,14 @@ export class TimeHookManager extends HookManagerCore {
 
     init(oldTimeFunctionRef: OldTimeFunctionRefType) {
         this.oldTimeFunctionRef = oldTimeFunctionRef;
+        for (let key of OldTimeFunctionRefTypeNameList) {
+            if (typeof oldTimeFunctionRef[key] === 'function') {
+                // it's ok
+                // console.log(`[DoLTimeWrapperAddon] [TimeHookManager] init function catch ok: `, [key]);
+            } else {
+                console.error(`[DoLTimeWrapperAddon] [TimeHookManager] init error function not be catch: `, [key]);
+            }
+        }
     }
 
 }

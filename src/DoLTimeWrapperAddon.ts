@@ -68,11 +68,10 @@ export class DoLTimeWrapperAddon {
             return '';
         }
 
-        // TODO this will case a error if a function now exist in OldTimeFunctionRefTypeNameList that we try to catch
-        //      and we cannot detect this, now
         let code = `window.addonDoLTimeWrapperAddon.init({`;
         for (let key of OldTimeFunctionRefTypeNameList) {
-            code += `${key}: ${key},`;
+            // use `( typeof ${key} === 'function' ? ${key} : undefined )` to avoid a function deleted by game update
+            code += `${key}: ( typeof ${key} === 'function' ? ${key} : undefined ),`;
         }
         code += `});`;
 
@@ -81,6 +80,12 @@ export class DoLTimeWrapperAddon {
         //     yearPassed: yearPassed,
         //     weekPassed: weekPassed,
         // });
+
+        // run with code `eval(eval(window.addonDoLTimeWrapperAddon.makeCatchCode()));`
+        // this code will call the `makeCatchCode()` to get the catch code
+        // then eval() the catch code to catch origin game function, and pass them to `init()` function
+        // then eval() the `init()` function to init the `TimeHookManager` and `TimeProxyManager` on above
+        // and the `init()` function will call `createWrapperForOldTimeFunctionRef()` to generate the code to replace the "local" function in `time.js` file
 
         return code;
     }
