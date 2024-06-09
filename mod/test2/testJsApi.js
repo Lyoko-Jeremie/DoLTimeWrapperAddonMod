@@ -6,7 +6,7 @@
     type: 'call',
     hook: (...args) => {
       console.log('[TestDoLTimeWrapperAddon] addTimeHook pass before');
-    }
+    },
   });
 
 
@@ -17,7 +17,18 @@
     type: 'call',
     hook: (...args) => {
       console.log('[TestDoLTimeWrapperAddon] addFunctionHook dayPassed before');
-    }
+    },
+  });
+  // hook the `localFunctionName`
+  window.addonDoLTimeWrapperAddon.addFunctionHook({
+    key: 'dayPassed',
+    pos: 'after',
+    type: 'call',
+    hook: (r) => {
+      console.log('[TestDoLTimeWrapperAddon] addFunctionHook dayPassed after', r);
+      return r;
+    },
+    change: true,
   });
   window.addonDoLTimeWrapperAddon.addFunctionHook({
     key: 'dayPassed',
@@ -25,6 +36,16 @@
     type: 'call',
     hook: (...args) => {
       console.log('[TestDoLTimeWrapperAddon] addFunctionHook dayPassed after');
-    }
+    },
+  });
+
+
+  window.addonDoLTimeWrapperAddon.addFunctionHook({
+    key: 'not_exist_function',
+    pos: 'after',
+    type: 'call',
+    hook: (...args) => {
+      console.log('[TestDoLTimeWrapperAddon] addFunctionHook not_exist_function after');
+    },
   });
 })();

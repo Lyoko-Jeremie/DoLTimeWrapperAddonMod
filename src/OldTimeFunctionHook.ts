@@ -106,15 +106,15 @@ export class TimeHookManager extends HookManagerCore {
     // }
 
     addCallableHook(key: string, hook: TimeHookType) {
-        if (!this.oldTimeFunctionRef) {
-            console.error(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook error oldTimeFunctionRef not init`);
-            this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook error oldTimeFunctionRef not init`);
-            return;
-        }
-        if (this.mode === 'TimeHookManager' && this.oldTimeFunctionRef.hasOwnProperty(key)) {
-            console.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${key}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
-            this.logger.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${key}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
-        }
+        // if (!this.oldTimeFunctionRef) {
+        //     console.error(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook error oldTimeFunctionRef not init`);
+        //     this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook error oldTimeFunctionRef not init`);
+        //     return;
+        // }
+        // if (this.mode === 'TimeHookManager' && this.oldTimeFunctionRef.hasOwnProperty(key)) {
+        //     console.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${key}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
+        //     this.logger.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${key}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
+        // }
         super.addCallableHook(key, hook);
     }
 
@@ -129,10 +129,10 @@ export class TimeHookManager extends HookManagerCore {
         }
         if (typeof this.oldTimeFunctionRef[key] === 'function') {
             const ff = this.oldTimeFunctionRef[key] as (...args: any[]) => any;
-            this.runCallback(key, 'before', 'call', args);
-            const R = ff(...args) as OldTimeFunctionReturnType[K]; // 使用类型断言来绕过 TS2556
-            this.runCallback(key, 'after', 'call', [R]);
-            return R;
+            const rb = this.runCallback(key, 'before', 'call', args);
+            const R = ff(...(rb ? rb.v : args)) as OldTimeFunctionReturnType[K]; // 使用类型断言来绕过 TS2556
+            const ra = this.runCallback(key, 'after', 'call', [R]);
+            return ra ? ra.v : R;
         }
         console.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: `, [key, args]);
         this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
@@ -156,6 +156,7 @@ export class TimeHookManager extends HookManagerCore {
     }
 
     init(oldTimeFunctionRef: OldTimeFunctionRefType) {
+        console.warn(`[DoLTimeWrapperAddon] [TimeHookManager] init start`);
         this.oldTimeFunctionRef = oldTimeFunctionRef;
         for (let key of OldTimeFunctionRefTypeNameList) {
             if (typeof this.oldTimeFunctionRef[key] === 'function') {
@@ -164,6 +165,11 @@ export class TimeHookManager extends HookManagerCore {
             } else {
                 console.error(`[DoLTimeWrapperAddon] [TimeHookManager] init error function not be catch: `, [key]);
             }
+        }
+        const lostKey = Array.from(this.callableHook.keys()).filter(k => !this.oldTimeFunctionRef?.hasOwnProperty(k));
+        if (this.mode === 'TimeHookManager' && lostKey.length > 0) {
+            console.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${lostKey}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
+            this.logger.warn(`[DoLTimeWrapperAddon] [TimeHookManager] addCallableHook key[${lostKey.join(',')}] not in oldTimeFunctionRef, maybe the game delete this function, please report mod author.`);
         }
     }
 
