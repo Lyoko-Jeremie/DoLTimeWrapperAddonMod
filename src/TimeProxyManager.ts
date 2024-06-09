@@ -184,6 +184,7 @@ export class TimeProxyHandler implements ProxyHandler<any> {
      * @param receiver  this ptr of obj
      */
     get(target: any, p: string | symbol, receiver: any): any {
+        // console.log(`[DoLTimeWrapperAddon] [TimeProxyHandler] get()`, [target, p, receiver]);
         const rb = this.parent.runCallback(p.toString(), 'before', 'get', [target, p, undefined]);
         // same as `target[p]` / `target.p` but use js origin implement
         let value = Reflect.get(target, p, receiver);
@@ -192,6 +193,7 @@ export class TimeProxyHandler implements ProxyHandler<any> {
         if (typeof value == 'function') {
             // it's a function call
             return (...argArray: any[]) => {
+                // console.log(`[DoLTimeWrapperAddon] [TimeProxyHandler] get() function call`, [target, p, argArray]);
                 try {
                     const rbc = this.parent.runCallback(value.name, 'before', 'call', [argArray]);
                     const R = Reflect.apply(value, target, (rbc ? rbc.v : argArray));
@@ -209,6 +211,7 @@ export class TimeProxyHandler implements ProxyHandler<any> {
     }
 
     set(target: any, p: string | symbol, newValue: any, receiver: any): boolean {
+        // console.log(`[DoLTimeWrapperAddon] [TimeProxyHandler] set()`, [target, p, newValue, receiver]);
         const rb = this.parent.runCallback(p.toString(), 'before', 'set', [target, p, newValue]);
         const ok = Reflect.set(target, p, (rb ? rb.v : newValue), receiver);
         const ra = this.parent.runCallback(p.toString(), 'after', 'set', [target, p, newValue]);

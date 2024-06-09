@@ -144,5 +144,10 @@ export const OldTimeFunctionRefTypeNameList: (keyof OldTimeFunctionRefType)[] = 
     'getArousal',
     'earSlimeDaily',
     'getTimeString',
+    
+    'passTime',
+    'passTimeUntil',
+    'advanceToHour',
+    'timeAfterXHours',
 ] as const;
 ```

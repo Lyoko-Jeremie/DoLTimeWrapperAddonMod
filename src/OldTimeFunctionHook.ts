@@ -56,6 +56,15 @@ export const OldTimeFunctionRefTypeNameList: (keyof OldTimeFunctionRefType)[] = 
     'getArousal',
     'earSlimeDaily',
     'getTimeString',
+
+    'passTime',
+    'passTimeUntil',
+    'advanceToHour',
+    'timeAfterXHours',
+
+    // ??? window.ampm
+    'ampm',
+    'schoolTerm',
 ] as const;
 
 export type OldTimeFunctionArgsType = {
@@ -160,7 +169,10 @@ export class TimeHookManager extends HookManagerCore {
         if (typeof this.oldTimeFunctionRef[key] === 'function') {
             const ff = this.oldTimeFunctionRef[key] as (...args: OldTimeFunctionArgsType[K]) => any;
             return (...args: any[]) => {
-                return this.invokeOldTimeFunctionRef(key, args as any) as OldTimeFunctionReturnType[K];
+                // console.log(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef C`, [key, args]);
+                const R = this.invokeOldTimeFunctionRef(key, args as any) as OldTimeFunctionReturnType[K];
+                // console.log(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef R`, [key, args, R]);
+                return R;
             };
         }
         console.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error function not exit: `, [key]);
