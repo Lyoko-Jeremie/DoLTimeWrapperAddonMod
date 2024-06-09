@@ -65,6 +65,8 @@ export interface DoLTimeWrapperParams {
 
 ---
 
+---
+
 use the API:
 
 ```typescript
@@ -76,7 +78,9 @@ window.addonDoLTimeWrapperAddon.addTimeHook({
     type: 'call',
     hook: (...args: any[]) => {
         // do something
-    }
+    },
+    change: false,   // if true, the hook() function return value will be the new value of the input of function (means it will change the origin value)
+                    // this can be used to modify the origin value, such as origin function params or return, or object get result or set result.
 });
 
 
@@ -87,7 +91,27 @@ window.addonDoLTimeWrapperAddon.addFunctionHook({
     type: 'call',
     hook: (...args: any[]) => {
         // do something
-    }
+        const originArgs = args[0];
+        // must return the origin params or new modifed params if `change` is true
+        // if change is false, the hook function return will be ignore
+        return args;
+        // return [/* place new args on here if you want modify it */];
+    },
+    change: false,
+});
+```
+
+```js
+window.addonDoLTimeWrapperAddon.addFunctionHook({
+  key: 'passTime',
+  pos: 'before',
+  type: 'call',
+  hook: (...args) => {
+    const originParams = args[0];
+    // this is a example to modify the origin params
+    return [originParams + 1];
+  },
+  change: true,
 });
 ```
 
@@ -113,6 +137,10 @@ export interface TimeHookType {
     //      3) same as 1.1
     //      4) same as 1.2
     hook: (...args: any[]) => void;
+    // if true, the hook() function return value will be the new value of the input of function (means it will change the origin value)
+    // this can be used to modify the origin value, such as origin function params or return, or object get result or set result.
+    // if not set, the `change` is false by default
+    change?: boolean;
 }
 ```
 
