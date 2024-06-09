@@ -96,6 +96,7 @@ export class DoLTimeWrapperAddonPlugin implements AddonPluginHookPointEx {
                         }
                     }
                 },
+                change: false,
             };
             if (p.level === 'LocalFunction') {
                 this.timeWrapperAddon.addFunctionHook(hook);
