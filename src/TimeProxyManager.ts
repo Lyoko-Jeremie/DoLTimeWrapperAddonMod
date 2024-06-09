@@ -16,7 +16,7 @@ export class ChangeValue {
         public type: 'call' | 'get' | 'set',
         public args: RunCallbackArgsType,
     ) {
-        console.log(`[DoLTimeWrapperAddon] [ChangeValue] constructor`, [pos, type, key, args]);
+        // console.log(`[DoLTimeWrapperAddon] [ChangeValue] constructor`, [pos, type, key, args]);
         switch (type) {
             case 'call':
                 if (pos == 'before') {
@@ -318,7 +318,8 @@ export class HookManagerCore {
     }
 
     runCallback(key: string, pos: 'before' | 'after', type: 'call' | 'get' | 'set', args: RunCallbackArgsType): ChangeValue | undefined {
-        console.log(`[DoLTimeWrapperAddon] [${this.mode}] runCallback`, [key, pos, type, args]);
+        // console.log(`[DoLTimeWrapperAddon] [${this.mode}] runCallback`, [key, pos, type, args]);
+
         // when 'call' , the args[0] is the origin function's params list ('before') OR is the function's return value ('after')
         // when 'get' , the args[0] is the origin object, the args[1] is the origin key, the args[2] is the origin value ('after') OR undefined ('before')
         // when 'set' , the args[0] is the origin object, the args[1] is the origin key, the args[2] is the new value

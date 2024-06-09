@@ -96,7 +96,8 @@ export class DoLTimeWrapperAddon {
             return;
         }
 
-        console.warn(`[DoLTimeWrapperAddon] [DoLTimeWrapperAddon] init start`);
+        console.log(`[DoLTimeWrapperAddon] [DoLTimeWrapperAddon] init start`);
+        this.logger.log(`[DoLTimeWrapperAddon] [DoLTimeWrapperAddon] init start`);
 
         this._timeProxyManager.init();
         this._timeHookManager.init(oldTimeFunctionRef);

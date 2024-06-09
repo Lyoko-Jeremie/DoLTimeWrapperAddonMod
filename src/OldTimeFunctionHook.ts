@@ -131,9 +131,9 @@ export class TimeHookManager extends HookManagerCore {
             if (typeof this.oldTimeFunctionRef[key] === 'function') {
                 const ff = this.oldTimeFunctionRef[key] as (...args: any[]) => any;
                 const rb = this.runCallbackSafe(key, 'before', 'call', [args]);
-                console.log(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef C`, [key, args, rb]);
+                // console.log(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef C`, [key, args, rb]);
                 const R = ff(...(rb ? rb.v : args)) as OldTimeFunctionReturnType[K]; // 使用类型断言来绕过 TS2556
-                console.log(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef R`, [key, args, R]);
+                // console.log(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef R`, [key, args, R]);
                 const ra = this.runCallbackSafe(key, 'after', 'call', [R]);
                 return ra ? ra.v : R;
             }
@@ -168,7 +168,9 @@ export class TimeHookManager extends HookManagerCore {
     }
 
     init(oldTimeFunctionRef: OldTimeFunctionRefType) {
-        console.warn(`[DoLTimeWrapperAddon] [TimeHookManager] init start`);
+        console.log(`[DoLTimeWrapperAddon] [TimeHookManager] init start`);
+        this.logger.log(`[DoLTimeWrapperAddon] [TimeHookManager] init start`);
+
         this.oldTimeFunctionRef = oldTimeFunctionRef;
         for (let key of OldTimeFunctionRefTypeNameList) {
             if (typeof this.oldTimeFunctionRef[key] === 'function') {
