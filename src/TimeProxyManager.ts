@@ -11,10 +11,12 @@ export class ChangeValue {
     protected newValue?: any | any[] = undefined;
 
     constructor(
+        public key: string,
         public pos: 'before' | 'after',
         public type: 'call' | 'get' | 'set',
         public args: RunCallbackArgsType,
     ) {
+        console.log(`[DoLTimeWrapperAddon] [ChangeValue] constructor`, [pos, type, key, args]);
         switch (type) {
             case 'call':
                 if (pos == 'before') {
@@ -25,7 +27,7 @@ export class ChangeValue {
                     this.originValue = args[0];
                     this.canChange = true;
                 }
-                break;
+                return;
             case 'get':
                 if (pos == 'before') {
                     // cannot
@@ -36,7 +38,7 @@ export class ChangeValue {
                     this.originValue = args[2];
                     this.canChange = true;
                 }
-                break;
+                return;
             case 'set':
                 if (pos == 'before') {
                     this.originValue = args[2];
@@ -47,13 +49,13 @@ export class ChangeValue {
                     this.originValue = args[2];
                     this.canChange = false;
                 }
-                break;
+                return;
             default:
-                console.error(`[DoLTimeWrapperAddon] [ChangeValue] constructor() never go there.`);
-                throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] constructor() never go there.`);
+                console.error(`[DoLTimeWrapperAddon] [ChangeValue] default constructor() never go there.`, [pos, type, key, args]);
+                throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] default constructor() never go there.`);
         }
-        console.error(`[DoLTimeWrapperAddon] [ChangeValue] constructor() never go there.`);
-        throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] constructor() never go there.`);
+        console.error(`[DoLTimeWrapperAddon] [ChangeValue] constructor() switch never go there.`, [pos, type, key, args]);
+        throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] constructor() switch never go there.`);
     }
 
     get argsNew(): RunCallbackArgsType {
@@ -80,11 +82,50 @@ export class ChangeValue {
                 }
                 break;
             default:
-                console.error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() never go there.`);
-                throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() never go there.`);
+                console.error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() default never go there.`, this);
+                throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() default never go there.`);
         }
-        console.error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() never go there.`);
-        throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() never go there.`);
+        console.error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() switch never go there.`, this);
+        throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() switch never go there.`);
+    }
+
+    set argsNew(value: RunCallbackArgsType) {
+        if (!this.canChange) {
+            return;
+        }
+        switch (this.type) {
+            case 'call':
+                if (this.pos == 'before' || this.pos == 'after') {
+                    this.v = value[0];
+                    return;
+                }
+                break;
+            case 'get':
+                if (this.pos == 'before') {
+                    this.v = value[2];
+                    return;
+                }
+                if (this.pos == 'after') {
+                    this.v = value[2];
+                    return;
+                }
+                break;
+            case 'set':
+                if (this.pos == 'before') {
+                    this.v = value[2];
+                    return;
+                }
+                if (this.pos == 'after') {
+                    this.v = value[2];
+                    return;
+                }
+                break;
+            default:
+                console.error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() default never go there.`, this);
+                throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() default never go there.`);
+        }
+        console.error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() switch never go there.`, this);
+        throw new Error(`[DoLTimeWrapperAddon] [ChangeValue] argsNew() switch never go there.`);
     }
 
     get v(): any | any[] {
@@ -109,7 +150,7 @@ export class ChangeValue {
 }
 
 // ...args[]                    can change function call params
-export type RunCallbackArgsType_call_before = any[];
+export type RunCallbackArgsType_call_before = [any,];
 // [return value]               can change function return value
 export type RunCallbackArgsType_call_after = [any,];
 // [target, p, undefined]       cannnot change, ignore
@@ -151,10 +192,15 @@ export class TimeProxyHandler implements ProxyHandler<any> {
         if (typeof value == 'function') {
             // it's a function call
             return (...argArray: any[]) => {
-                const rbc = this.parent.runCallback(value.name, 'before', 'call', argArray);
-                const R = Reflect.apply(value, target, (rbc ? rbc.v : argArray));
-                const rac = this.parent.runCallback(value.name, 'after', 'call', [R]);
-                return (rac ? rac.v : R);
+                try {
+                    const rbc = this.parent.runCallback(value.name, 'before', 'call', [argArray]);
+                    const R = Reflect.apply(value, target, (rbc ? rbc.v : argArray));
+                    const rac = this.parent.runCallback(value.name, 'after', 'call', [R]);
+                    return (rac ? rac.v : R);
+                } catch (e) {
+                    console.error(`[DoLTimeWrapperAddon] [TimeProxyHandler] get() function call error: `, [e]);
+                    throw e;
+                }
             };
         } else {
             // only get a value
@@ -261,7 +307,18 @@ export class HookManagerCore {
         this.logger.log(`[DoLTimeWrapperAddon] [${this.mode}] addCallableHook key[${key}] pos[${hook.pos}] type[${hook.type}]`);
     }
 
+    runCallbackSafe(...args: Parameters<HookManagerCore['runCallback']>): ReturnType<HookManagerCore['runCallback']> {
+        try {
+            return this.runCallback(...arguments);
+        } catch (e) {
+            console.error(`[DoLTimeWrapperAddon] [${this.mode}] runCallbackSafe error: `, e);
+            this.logger.error(`[DoLTimeWrapperAddon] [${this.mode}] runCallbackSafe error: [${e.message ? e.message : e}]`);
+            throw e;
+        }
+    }
+
     runCallback(key: string, pos: 'before' | 'after', type: 'call' | 'get' | 'set', args: RunCallbackArgsType): ChangeValue | undefined {
+        console.log(`[DoLTimeWrapperAddon] [${this.mode}] runCallback`, [key, pos, type, args]);
         // when 'call' , the args[0] is the origin function's params list ('before') OR is the function's return value ('after')
         // when 'get' , the args[0] is the origin object, the args[1] is the origin key, the args[2] is the origin value ('after') OR undefined ('before')
         // when 'set' , the args[0] is the origin object, the args[1] is the origin key, the args[2] is the new value
@@ -284,6 +341,7 @@ export class HookManagerCore {
             return undefined;
         }
         let cv: ChangeValue = new ChangeValue(
+            key,
             pos,
             type,
             args,
@@ -291,9 +349,12 @@ export class HookManagerCore {
         for (const hook of hooks) {
             if (hook.pos == pos && hook.type == type) {
                 try {
-                    // const r = hook.hook(...args);
-                    const r = hook.hook(...cv.argsNew);
-                    cv.v = r;
+                    if (hook.change) {
+                        const r = hook.hook(...cv.argsNew);
+                        cv.argsNew = r;
+                    } else {
+                        const r = hook.hook(...cv.argsNew);
+                    }
                 } catch (e: Error | any) {
                     console.error(`[DoLTimeWrapperAddon] [${this.mode}] runCallback error: `, [key, pos, type, [args], e, cv]);
                     this.logger.error(`[DoLTimeWrapperAddon] [${this.mode}] runCallback key[${key}] pos[${pos}] type[${type}]. error: [${e.message ? e.message : e}]`);

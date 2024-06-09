@@ -127,16 +127,28 @@ export class TimeHookManager extends HookManagerCore {
             this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] createWrapperForOldTimeFunctionRef error oldTimeFunctionRef not init`);
             return;
         }
-        if (typeof this.oldTimeFunctionRef[key] === 'function') {
-            const ff = this.oldTimeFunctionRef[key] as (...args: any[]) => any;
-            const rb = this.runCallback(key, 'before', 'call', args);
-            const R = ff(...(rb ? rb.v : args)) as OldTimeFunctionReturnType[K]; // 使用类型断言来绕过 TS2556
-            const ra = this.runCallback(key, 'after', 'call', [R]);
-            return ra ? ra.v : R;
+        try {
+            if (typeof this.oldTimeFunctionRef[key] === 'function') {
+                const ff = this.oldTimeFunctionRef[key] as (...args: any[]) => any;
+                const rb = this.runCallbackSafe(key, 'before', 'call', [args]);
+                console.log(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef C`, [key, args, rb]);
+                const R = ff(...(rb ? rb.v : args)) as OldTimeFunctionReturnType[K]; // 使用类型断言来绕过 TS2556
+                console.log(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef R`, [key, args, R]);
+                const ra = this.runCallbackSafe(key, 'after', 'call', [R]);
+                return ra ? ra.v : R;
+            }
+            console.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: `, [key, args]);
+            this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
+            throw new Error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
+        } catch (e) {
+            console.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function call error: `, [
+                key, e, args,
+            ]);
+            if (e?.stack) {
+                console.error(e?.stack);
+            }
+            throw e;
         }
-        console.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: `, [key, args]);
-        this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
-        throw new Error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
     }
 
     createWrapperForOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K) {
