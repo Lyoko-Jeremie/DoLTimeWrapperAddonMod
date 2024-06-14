@@ -31,6 +31,15 @@ export interface OldTimeFunctionRefType {
     getArousal?: (passMinutes: number) => number;
     earSlimeDaily?: () => void;
     getTimeString?: (...args: any[]) => void;
+
+    passTime: (time?: number, type?: string) => DocumentFragment;
+    passTimeUntil: (hour: number, minute?: number) => DocumentFragment;
+    advanceToHour: () => DocumentFragment;
+    timeAfterXHours: (hours: number) => string;
+
+    // ??? window.ampm
+    ampm: (hour: number, minute: number) => string;
+    schoolTerm: () => string;
 }
 
 export const OldTimeFunctionRefTypeNameList: (keyof OldTimeFunctionRefType)[] = [
@@ -146,10 +155,7 @@ export class TimeHookManager extends HookManagerCore {
                 const ra = this.runCallbackSafe(key, 'after', 'call', [R]);
                 return ra ? ra.v : R;
             }
-            console.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: `, [key, args]);
-            this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
-            throw new Error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
-        } catch (e) {
+        } catch (e: any) {
             console.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function call error: `, [
                 key, e, args,
             ]);
@@ -158,6 +164,9 @@ export class TimeHookManager extends HookManagerCore {
             }
             throw e;
         }
+        console.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: `, [key, args]);
+        this.logger.error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
+        throw new Error(`[DoLTimeWrapperAddon] [TimeHookManager] invokeOldTimeFunctionRef error function not exit: [${key}]`);
     }
 
     createWrapperForOldTimeFunctionRef<K extends keyof OldTimeFunctionRefType>(key: K) {

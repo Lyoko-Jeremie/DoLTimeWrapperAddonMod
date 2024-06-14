@@ -67,18 +67,18 @@ export class ChangeValue {
                 break;
             case 'get':
                 if (this.pos == 'before') {
-                    return [this.args[0], this.args[1], this.v];
+                    return [this.args[0], this.args[1], this.v] as RunCallbackArgsType;
                 }
                 if (this.pos == 'after') {
-                    return [this.args[0], this.args[1], this.v];
+                    return [this.args[0], this.args[1], this.v] as RunCallbackArgsType;
                 }
                 break;
             case 'set':
                 if (this.pos == 'before') {
-                    return [this.args[0], this.args[1], this.v];
+                    return [this.args[0], this.args[1], this.v] as RunCallbackArgsType;
                 }
                 if (this.pos == 'after') {
-                    return [this.args[0], this.args[1], this.v];
+                    return [this.args[0], this.args[1], this.v] as RunCallbackArgsType;
                 }
                 break;
             default:
@@ -150,9 +150,9 @@ export class ChangeValue {
 }
 
 // ...args[]                    can change function call params
-export type RunCallbackArgsType_call_before = [any,];
+export type RunCallbackArgsType_call_before = [NonNullable<any>,];
 // [return value]               can change function return value
-export type RunCallbackArgsType_call_after = [any,];
+export type RunCallbackArgsType_call_after = [NonNullable<any>,];
 // [target, p, undefined]       cannnot change, ignore
 export type RunCallbackArgsType_get_before = [Object, string | symbol, undefined];
 // [target, p, returnValue]     can change the `xxx = target[p]` return value
@@ -312,8 +312,8 @@ export class HookManagerCore {
 
     runCallbackSafe(...args: Parameters<HookManagerCore['runCallback']>): ReturnType<HookManagerCore['runCallback']> {
         try {
-            return this.runCallback(...arguments);
-        } catch (e) {
+            return this.runCallback(...args);
+        } catch (e: any) {
             console.error(`[DoLTimeWrapperAddon] [${this.mode}] runCallbackSafe error: `, e);
             this.logger.error(`[DoLTimeWrapperAddon] [${this.mode}] runCallbackSafe error: [${e.message ? e.message : e}]`);
             throw e;
