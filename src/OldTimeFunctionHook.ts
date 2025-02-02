@@ -25,7 +25,7 @@ export interface OldTimeFunctionRefType {
     dailySchoolEffects?: () => DocumentFragment;
     dailyMasochismSadismEffects?: () => DocumentFragment;
     dailyFarmEvents?: () => DocumentFragment;
-    temperatureHour?: () => void;
+    // temperatureHour?: () => void;
     passWater?: (passMinutes: number) => DocumentFragment;
     passArousalWetness?: (passMinutes: number) => DocumentFragment;
     getArousal?: (passMinutes: number) => number;
@@ -59,7 +59,7 @@ export const OldTimeFunctionRefTypeNameList: (keyof OldTimeFunctionRefType)[] = 
     'dailySchoolEffects',
     'dailyMasochismSadismEffects',
     'dailyFarmEvents',
-    'temperatureHour',
+    // 'temperatureHour',
     'passWater',
     'passArousalWetness',
     'getArousal',
